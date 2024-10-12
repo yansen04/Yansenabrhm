@@ -3,7 +3,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="light reveal txt.css" />
-    <title>light reveal text</title>
   </head>
   <body>
       <div>
@@ -22,7 +21,7 @@
           <div class="light"></div>
         </div>
       </div>
-      <section class="error">
+     <section class="error">
         <div class="error__content">
           <div class="error__message message">
             <h1 class="message__title">I Love You💕</h1>
