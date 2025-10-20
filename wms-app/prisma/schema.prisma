@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Core WMS models
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  name        String
+  description String?
+  uom         String   @default("PCS")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  inventories Inventory[]
+  receiptLines ReceiptLine[]
+  pickLines     PickLine[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  type      LocationType @default(STORAGE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  inventories Inventory[]
+}
+
+enum LocationType {
+  STORAGE
+  RECEIVING
+  SHIPPING
+  PICKING
+}
+
+model Inventory {
+  id         String   @id @default(cuid())
+  itemId     String
+  locationId String
+  quantity   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  item     Item     @relation(fields: [itemId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([itemId, locationId])
+}
+
+model Receipt {
+  id         String   @id @default(cuid())
+  reference  String   @unique
+  status     ReceiptStatus @default(DRAFT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lines      ReceiptLine[]
+}
+
+enum ReceiptStatus {
+  DRAFT
+  RECEIVED
+}
+
+model ReceiptLine {
+  id        String   @id @default(cuid())
+  receiptId String
+  itemId    String
+  quantity  Int
+
+  receipt Receipt @relation(fields: [receiptId], references: [id])
+  item    Item    @relation(fields: [itemId], references: [id])
+}
+
+model Pick {
+  id         String   @id @default(cuid())
+  reference  String   @unique
+  status     PickStatus @default(DRAFT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lines      PickLine[]
+}
+
+enum PickStatus {
+  DRAFT
+  PICKED
+}
+
+model PickLine {
+  id      String   @id @default(cuid())
+  pickId  String
+  itemId  String
+  qty     Int
+
+  pick Pick @relation(fields: [pickId], references: [id])
+  item Item @relation(fields: [itemId], references: [id])
+}
